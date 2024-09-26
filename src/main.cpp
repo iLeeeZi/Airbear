@@ -21,9 +21,11 @@ uint32_t loopCounter = 0;
 
 void setup() 
 {  
-  pinMode(GPIO_NUM_8, INPUT_PULLDOWN);
+  //pinMode(GPIO_NUM_8, INPUT_PULLDOWN);
   Serial.begin(115200);
-  Serial.setTxTimeoutMs(0);   // Workaround for https://github.com/espressif/arduino-esp32/issues/6983. Removing this will cause the loop to run VERY slowly unless the serial monitor is connected
+  #if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32S3
+    Serial.setTxTimeoutMs(0);   // Workaround for https://github.com/espressif/arduino-esp32/issues/6983. Removing this will cause the loop to run VERY slowly unless the serial monitor is connected
+  #endif
   initConfig();
   initTimers();
   initBLE();
@@ -140,13 +142,15 @@ void setup()
   //By default the ESP32-C3 will output a bunch of diag messages on bootup over UART. 
   //This messes up the secondary serial on the Speeduino so these bootup messages are disabled.
   //The only way to achieve this is to burn the eFuse value, so this is a one way operation (ie it cannot be undone)
+  #if CONFIG_IDF_TARGET_ESP32C3
   if(REG_GET_FIELD(EFUSE_RD_REPEAT_DATA3_REG, EFUSE_UART_PRINT_CONTROL) == 0) //Check whether eFUSE is in its original state
   {
     //Burn eFuse value to disable UART messages on bootup
     esp_efuse_set_rom_log_scheme(ESP_EFUSE_ROM_LOG_ALWAYS_OFF); //New eFuse value will be 3
   }
-
-  Serial_ECU.begin(115200);
+  #endif
+  //Serial_ECU.begin(115200);
+  Serial_ECU.begin(115200,SERIAL_8N1,21,25);
   delay(500);
   while(Serial_ECU.available()) { Serial_ECU.read(); } //In case unit has restarted and ECU is still sending data over UART
 }
@@ -227,7 +231,8 @@ void loop()
     else 
     { 
       Serial.println("No serial connection available. Retrying");
-      Serial_ECU.begin(115200); 
+      //Serial_ECU.begin(115200); 
+      Serial_ECU.begin(115200,SERIAL_8N1,21,25);
     } //Retry serial connection
   }
 }

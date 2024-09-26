@@ -28,8 +28,10 @@
 #define CONNECTION_TYPE_WIFI        1
 #define CONNECTION_TYPE_BLE         2
 #define CONNECTION_TYPE_TUNERSTUDIO 3
+#define CONNECTION_TYPE_SPP         4
 
-#define BLE_ID                    "Speeduino"
+#define BLE_ID                    "Speeduino VR6"
+#define SPP_ID                    "Speeduino VR6"
 
 #if ARDUINO_USB_CDC_ON_BOOT
   #define Serial_ECU              Serial0
