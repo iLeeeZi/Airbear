@@ -8,6 +8,7 @@ This file contains routines for remotely updating the LittleFS partition that co
 #include "timer.h"
 #include "static/static_js.h"
 #include "static/static_html.h"
+#include "static/static_css.h"
 
 #include <WiFi.h>
 #include <HTTPUpdate.h>
@@ -100,12 +101,21 @@ String updateInProgressPage()
   //Create the updates page
   String updatePage = staticHTML_head();
   updatePage += staticJS_updates();
+  updatePage += staticCSS_config();
   updatePage += "</head><body onLoad=\"updateProgress()\">";
-  updatePage += "Current Status: <span id=\"updateStatus\">Preparing to update</span><br/>";
-  updatePage += "Current Progress: <span id=\"updateComplete\"></span><br/>";
-  updatePage += "Update Size: <span id=\"updateSize\"></span><br/>";
-  updatePage += "Update Completion: <span id=\"updatePercent\"></span>%<br/>";
-  updatePage += "</body></html>";
+  updatePage += "<div class=\"container\">";
+  updatePage += staticHTML_logo();
+  updatePage += "<input id=\"tab-1\" type=\"radio\" name=\"tabs\" class=\"tabs\" checked>";
+  updatePage += "<label for=\"tab-1\">Update Progress</label>";
+  updatePage += "<div class=\"content\">";
+
+  updatePage += "<div id=\"content-1\">";
+  updatePage += "<strong>Current Status: </strong><span id=\"updateStatus\">Preparing to update</span><br/>";
+  updatePage += "<strong>Update Size: </strong><span id=\"updateSize\"></span><br/>";
+  updatePage += "<strong>Downloaded: </strong><span id=\"updateComplete\"></span><br/>";
+  updatePage += "<strong>Update Completion: </strong><span id=\"updatePercent\"></span>%<div/>";
+
+  updatePage += "<br/></div></div></body></html>";
 
   return updatePage;
 }
@@ -183,7 +193,7 @@ void updateFromRemote()
       case HTTP_UPDATE_OK: 
         Serial.println("HTTP_UPDATE_OK"); 
         config.putString("newData_url", "");
-        delay(500);
+        delay(1300); //Need to wait at least 1 update cycle (1100ms) so that the frontend knows the update is complete
         ESP.restart();
         break;
     }
